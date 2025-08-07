@@ -243,3 +243,237 @@ app.delete("/unit/delete/:id", async (req, res) => {
     });
   }
 });
+
+// CREATE Level
+app.post("/levels/insert", async (req, res) => {
+  try {
+    const levelData = req.body;
+
+    const newLevel = await prisma.Levels.create({
+      data: {
+        Name: levelData.Name,
+      },
+    });
+
+    return res.status(201).json({
+      message: "Level created successfully",
+      data: newLevel,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to create level",
+      error: error.message,
+    });
+  }
+});
+
+// GET ALL Levels
+app.get("/levels/get", async (req, res) => {
+  try {
+    const levels = await prisma.Levels.findMany({
+      orderBy: { Id: "desc" },
+    });
+
+    res.status(200).json({
+      message: "Levels fetched successfully",
+      data: levels,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to fetch levels",
+      error: error.message,
+    });
+  }
+});
+
+// GET SINGLE Level
+app.get("/levels/get/:id", async (req, res) => {
+  try {
+    const levelId = Number(req.params.id);
+    const level = await prisma.Levels.findUnique({
+      where: { Id: levelId },
+    });
+
+    if (!level) {
+      return res.status(404).json({ message: "Level not found" });
+    }
+
+    res.status(200).json({
+      message: "Level fetched successfully",
+      data: level,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to fetch level",
+      error: error.message,
+    });
+  }
+});
+
+// UPDATE Level
+app.put("/levels/update/:id", async (req, res) => {
+  try {
+    const levelId = Number(req.params.id);
+    const updateData = req.body;
+
+    const updatedLevel = await prisma.Levels.update({
+      where: { Id: levelId },
+      data: {
+        Name: updateData.Name,
+      },
+    });
+
+    res.status(200).json({
+      message: "Level updated successfully",
+      data: updatedLevel,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to update level",
+      error: error.message,
+    });
+  }
+});
+
+// DELETE Level
+app.delete("/levels/delete/:id", async (req, res) => {
+  try {
+    const levelId = Number(req.params.id);
+
+    await prisma.Levels.delete({
+      where: { Id: levelId },
+    });
+
+    res.status(200).json({
+      message: "Level deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to delete level",
+      error: error.message,
+    });
+  }
+});
+
+// CREATE Room
+app.post("/rooms/insert", async (req, res) => {
+  try {
+    const roomData = req.body;
+
+    const newRoom = await prisma.Rooms.create({
+      data: {
+        UnitId: Number(roomData.UnitId),
+        RoomNo: roomData.RoomNo,
+      },
+    });
+
+    return res.status(201).json({
+      message: "Room created successfully",
+      data: newRoom,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to create room",
+      error: error.message,
+    });
+  }
+});
+
+// GET ALL Rooms
+app.get("/rooms/get", async (req, res) => {
+  try {
+    const rooms = await prisma.Rooms.findMany({
+      orderBy: { Id: "desc" },
+    });
+
+    res.status(200).json({
+      message: "Rooms fetched successfully",
+      data: rooms,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to fetch rooms",
+      error: error.message,
+    });
+  }
+});
+
+// GET SINGLE Room
+app.get("/rooms/get/:id", async (req, res) => {
+  try {
+    const roomId = Number(req.params.id);
+    const room = await prisma.Rooms.findUnique({
+      where: { Id: roomId },
+    });
+
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    res.status(200).json({
+      message: "Room fetched successfully",
+      data: room,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to fetch room",
+      error: error.message,
+    });
+  }
+});
+
+// UPDATE Room
+app.put("/rooms/update/:id", async (req, res) => {
+  try {
+    const roomId = Number(req.params.id);
+    const updateData = req.body;
+
+    const updatedRoom = await prisma.Rooms.update({
+      where: { Id: roomId },
+      data: {
+        RoomNo: updateData.RoomNo,
+        UnitId: Number(updateData.UnitId),
+      },
+    });
+
+    res.status(200).json({
+      message: "Room updated successfully",
+      data: updatedRoom,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to update room",
+      error: error.message,
+    });
+  }
+});
+
+// DELETE Room
+app.delete("/rooms/delete/:id", async (req, res) => {
+  try {
+    const roomId = Number(req.params.id);
+
+    await prisma.Rooms.delete({
+      where: { Id: roomId },
+    });
+
+    res.status(200).json({
+      message: "Room deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Failed to delete room",
+      error: error.message,
+    });
+  }
+});
