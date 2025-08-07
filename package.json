@@ -2,6 +2,7 @@
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "cores": "^0.8.5",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "prisma": "^6.13.0"
   }
