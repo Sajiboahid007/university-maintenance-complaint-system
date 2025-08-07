@@ -1,0 +1,71 @@
+-- 1. Users Table
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Role VARCHAR(20) CHECK (Role IN ('student', 'teacher', 'admin')) NOT NULL,
+    Phone VARCHAR(20),
+    Password VARCHAR(255) NOT NULL
+);
+
+-- 2. Levels Table
+CREATE TABLE Levels (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(50) NOT NULL
+);
+
+-- 3. Units Table
+CREATE TABLE Units (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    LevelId INT NOT NULL,
+    Name VARCHAR(10) CHECK (Name IN ('A', 'B')) NOT NULL,
+    FOREIGN KEY (LevelId) REFERENCES Levels(Id)
+);
+
+-- 4. Rooms Table
+CREATE TABLE Rooms (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UnitId INT NOT NULL,
+    RoomNo VARCHAR(20) NOT NULL,
+    FOREIGN KEY (UnitId) REFERENCES Units(Id)
+);
+
+-- 5. Devices Table
+CREATE TABLE Devices (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    RoomId INT NOT NULL,
+    Type VARCHAR(20) CHECK (Type IN ('fan', 'light', 'plug', 'computer', 'projector')) NOT NULL,
+    Identifier VARCHAR(50),
+    Status VARCHAR(20) CHECK (Status IN ('working', 'faulty', 'repairing', 'replaced')) NOT NULL DEFAULT 'working',
+    FOREIGN KEY (RoomId) REFERENCES Rooms(Id)
+);
+
+-- 6. Complaints Table
+CREATE TABLE Complaints (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    DeviceId INT NOT NULL,
+    Description TEXT NOT NULL,
+    Status VARCHAR(20) CHECK (Status IN ('pending', 'inProgress', 'resolved')) NOT NULL DEFAULT 'pending',
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (DeviceId) REFERENCES Devices(Id)
+);
+
+-- 7. Technicians Table (Optional)
+CREATE TABLE Technicians (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL,
+    Phone VARCHAR(20),
+    AssignedArea VARCHAR(50)
+);
+
+-- 8. ComplaintLogs Table (Optional)
+CREATE TABLE ComplaintLogs (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    ComplaintId INT NOT NULL,
+    Action TEXT NOT NULL,
+    ActionDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ComplaintId) REFERENCES Complaints(Id)
+);

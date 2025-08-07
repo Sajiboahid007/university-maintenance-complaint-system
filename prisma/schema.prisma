@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model ComplaintLogs {
+  Id          Int        @id(map: "PK__Complain__3214EC07DB7CE7C6") @default(autoincrement())
+  ComplaintId Int
+  Action      String     @db.Text
+  ActionDate  DateTime?  @default(now(), map: "DF__Complaint__Actio__5FB337D6") @db.DateTime
+  Complaints  Complaints @relation(fields: [ComplaintId], references: [Id], onUpdate: NoAction, map: "FK__Complaint__Compl__60A75C0F")
+}
+
+model Complaints {
+  Id            Int             @id(map: "PK__Complain__3214EC078C06C2A3") @default(autoincrement())
+  UserId        Int
+  DeviceId      Int
+  Description   String          @db.Text
+  Status        String          @default("pending", map: "DF__Complaint__Statu__571DF1D5") @db.VarChar(20)
+  CreatedAt     DateTime?       @default(now(), map: "DF__Complaint__Creat__5812160E") @db.DateTime
+  UpdatedAt     DateTime?       @default(now(), map: "DF__Complaint__Updat__59063A47") @db.DateTime
+  ComplaintLogs ComplaintLogs[]
+  Devices       Devices         @relation(fields: [DeviceId], references: [Id], onUpdate: NoAction, map: "FK__Complaint__Devic__5AEE82B9")
+  Users         Users           @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK__Complaint__UserI__59FA5E80")
+}
+
+model Devices {
+  Id         Int          @id(map: "PK__Devices__3214EC07CCBC3972") @default(autoincrement())
+  RoomId     Int
+  Type       String       @db.VarChar(20)
+  Identifier String?      @db.VarChar(50)
+  Status     String       @db.VarChar(20)
+  Complaints Complaints[]
+  Rooms      Rooms        @relation(fields: [RoomId], references: [Id], onUpdate: NoAction, map: "FK__Devices__RoomId__5441852A")
+}
+
+model Levels {
+  Id    Int     @id(map: "PK__Levels__3214EC07D7A5C12B") @default(autoincrement())
+  Name  String  @db.VarChar(50)
+  Units Units[]
+}
+
+model Rooms {
+  Id      Int       @id(map: "PK__Rooms__3214EC07611B21A6") @default(autoincrement())
+  UnitId  Int
+  RoomNo  String    @db.VarChar(20)
+  Devices Devices[]
+  Units   Units     @relation(fields: [UnitId], references: [Id], onUpdate: NoAction, map: "FK__Rooms__UnitId__5165187F")
+}
+
+model Technicians {
+  Id           Int     @id(map: "PK__Technici__3214EC079C99AE37") @default(autoincrement())
+  Name         String  @db.VarChar(100)
+  Phone        String? @db.VarChar(20)
+  AssignedArea String? @db.VarChar(50)
+}
+
+model Units {
+  Id      Int     @id(map: "PK__Units__3214EC07F86AB8EC") @default(autoincrement())
+  LevelId Int
+  Name    String  @db.VarChar(10)
+  Rooms   Rooms[]
+  Levels  Levels  @relation(fields: [LevelId], references: [Id], onUpdate: NoAction, map: "FK__Units__LevelId__4E88ABD4")
+}
+
+model Users {
+  Id         Int          @id(map: "PK__Users__3214EC070D33B222") @default(autoincrement())
+  Name       String       @db.VarChar(100)
+  Email      String       @unique(map: "UQ__Users__A9D10534CBC323EB") @db.VarChar(100)
+  Role       String       @db.VarChar(20)
+  Phone      String?      @db.VarChar(20)
+  Password   String       @db.VarChar(255)
+  Complaints Complaints[]
+}
