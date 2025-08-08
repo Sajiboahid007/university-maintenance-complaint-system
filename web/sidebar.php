@@ -56,7 +56,7 @@
         <a href="./levels.php">Levels</a>
         <a href="./units.php">Units</a>
         <a href="#">All Devices</a>
-        <a href="#">Rooms</a>
+        <a href="./rooms.php">Rooms</a>
         <a href="#">Technicians</a>
         <a href="#">Settings</a>
       </div>
