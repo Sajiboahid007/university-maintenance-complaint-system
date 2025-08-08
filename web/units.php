@@ -32,7 +32,7 @@ include 'sidebar.php';
 
 <!-- Add Unit Modal -->
 <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+ <div class="modal-dialog modal-xl modal-dialog-centered">
     <form id="addUnitForm">
       <div class="modal-content">
         <div class="modal-header">
@@ -124,7 +124,7 @@ include 'sidebar.php';
       },
       columns: [
         { data: 'Id' },
-        { data: 'Level.Name', defaultContent: 'N/A' }, // assuming backend joins level info as Level.Name
+        { data: 'Levels.Name', defaultContent: 'N/A' }, // assuming backend joins level info as Level.Name
         { data: 'Name' },
         {
           data: null,
