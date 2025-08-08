@@ -31,16 +31,15 @@ router.post("/insert", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const units = await prisma.Units.findMany({
+      include: { Levels: true },
       orderBy: { Id: "desc" },
     });
-    console.debug("some");
     res.status(200).json({
       message: "Units fetched successfully",
       data: units,
     });
   } catch (error) {
     console.error("Error:", error);
-    console.debug("some");
     res.status(500).json({
       message: "Failed to fetch units",
       error: error.message,

@@ -40,8 +40,9 @@ router.get("/:id", async (req, res) => {
 // Create a new room
 router.post("/insert", async (req, res) => {
   try {
-    const { UnitId, RoomNo } = req.body;
-
+    // const { UnitId, RoomNo } = req.body;
+    const UnitId = parseInt(req.body.UnitId);
+    const RoomNo = req.body.RoomNo;
     const newRoom = await prisma.rooms.create({
       data: { UnitId, RoomNo },
     });
@@ -57,7 +58,8 @@ router.post("/insert", async (req, res) => {
 // Update a room
 router.put("/update/:id", async (req, res) => {
   try {
-    const { UnitId, RoomNo } = req.body;
+    const UnitId = parseInt(req.body.UnitId);
+    const RoomNo = req.body.RoomNo;
 
     const updatedRoom = await prisma.rooms.update({
       where: { Id: parseInt(req.params.id) },
