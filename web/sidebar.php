@@ -62,3 +62,17 @@
         <a href="./complaintLogs.php">Complaint Logs</a>
         <a href="#">Settings</a>
       </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const userInfoStr = localStorage.getItem("userInfo");
+    
+    if (userInfoStr) {
+      const userInfo = JSON.parse(userInfoStr); // convert back to object
+      if (userInfo.name) {
+        document.getElementById("topbarUsername").textContent = userInfo.name;
+      }
+    }
+  });
+</script>
+

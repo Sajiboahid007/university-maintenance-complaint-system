@@ -49,7 +49,7 @@ include 'sidebar.php';
         </div>
         <div class="modal-body">
           <!-- Hidden input for logged-in user -->
-          <input type="hidden" id="currentUserId" name="UserId" value="<?php echo $_SESSION['userId']; ?>">
+          <input type="hidden" id="currentUserId" name="UserId">
 
           <div class="mb-3">
             <label class="form-label">Device</label>
@@ -172,15 +172,19 @@ $(document).ready(function () {
   // Show Add Modal
   $('#addComplaintBtn').click(function() {
     loadDevices();
+
     $('#addComplaintForm')[0].reset();
     $('#addComplaintModal').modal('show');
+    const userInfo =JSON.parse(localStorage.getItem("userInfo"));
+    $("#currentUserId").val(userInfo.id);
+    console.log(userInfo);
   });
 
   // Add Complaint
   $('#addComplaintForm').submit(function(e) {
     e.preventDefault();
     const data = {
-      UserId: currentUserId,
+      UserId: parseInt($("#currentUserId").val()),
       DeviceId: parseInt($('#complaintDeviceId').val()),
       Description: $('#complaintDescription').val(),
       Status: $('#complaintStatus').val()
