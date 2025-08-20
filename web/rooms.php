@@ -69,8 +69,8 @@ $(document).ready(function () {
                 data: null,
                 render: function (data) {
                     return `
-                        <button class="btn btn-sm btn-warning editRoom" data-id="${data.Id}"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-danger deleteRoom" data-id="${data.Id}"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-sm btn-warning editRoom" data-id="${data.Id}"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-danger deleteRoom" data-id="${data.Id}"><i class="bi bi-trash"></i></button>
                     `;
                 },
 

@@ -8,7 +8,20 @@ const prisma = new PrismaClient();
 router.get("/", async (req, res) => {
   try {
     const logs = await prisma.complaintLogs.findMany({
-      include: { Complaints: true },
+      include: {
+        Complaints: {
+          include: {
+            Devices: {
+              include: {
+                Rooms: {
+                  include: { Units: true },
+                },
+              },
+            },
+            Users: true,
+          },
+        },
+      },
       orderBy: { Id: "desc" },
     });
     res.json({ message: "Complaint logs fetched successfully", data: logs });
@@ -20,68 +33,80 @@ router.get("/", async (req, res) => {
 });
 
 // GET complaint log by ID
-router.get("/:id", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const log = await prisma.complaintLogs.findUnique({
-      where: { Id: Number(req.params.id) },
-      include: { Complaints: true },
+    const complaints = await prisma.complaints.findMany({
+      include: {
+        Users: true,
+        Devices: {
+          include: {
+            Rooms: {
+              include: {
+                Units: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { CreatedAt: "desc" },
     });
-    if (!log)
-      return res.status(404).json({ message: "Complaint log not found" });
-    res.json({ message: "Complaint log fetched successfully", data: log });
+
+    res.json({ message: "Complaints fetched successfully", data: complaints });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching complaint log", error: error.message });
+      .json({ message: "Error fetching complaints", error: error.message });
   }
 });
 
-// CREATE complaint log
-router.post("/insert", async (req, res) => {
+// GET single complaint by ID
+router.get("/get/:id", async (req, res) => {
   try {
-    const { ComplaintId, Action, ActionDate } = req.body;
-
-    const newLog = await prisma.complaintLogs.create({
-      data: {
-        ComplaintId,
-        Action,
-        ActionDate: ActionDate ? new Date(ActionDate) : undefined,
+    const complaint = await prisma.complaints.findUnique({
+      where: { Id: Number(req.params.id) },
+      include: {
+        Users: true,
+        Devices: {
+          include: {
+            Rooms: {
+              include: { Units: true },
+            },
+          },
+        },
       },
     });
 
-    res
-      .status(201)
-      .json({ message: "Complaint log created successfully", data: newLog });
+    if (!complaint)
+      return res.status(404).json({ message: "Complaint not found" });
+    res.json({ message: "Complaint fetched successfully", data: complaint });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error creating complaint log", error: error.message });
+      .json({ message: "Error fetching complaint", error: error.message });
   }
 });
 
-// UPDATE complaint log
+// UPDATE complaint status only
 router.put("/update/:id", async (req, res) => {
   try {
-    const logId = Number(req.params.id);
-    const { ComplaintId, Action, ActionDate } = req.body;
+    const complaintId = Number(req.params.id);
+    const { Status } = req.body;
 
-    const updatedLog = await prisma.complaintLogs.update({
-      where: { Id: logId },
-      data: {
-        ComplaintId,
-        Action,
-        ActionDate: ActionDate ? new Date(ActionDate) : undefined,
-      },
+    if (!Status) return res.status(400).json({ message: "Status is required" });
+
+    const updatedComplaint = await prisma.complaints.update({
+      where: { Id: complaintId },
+      data: { Status },
     });
 
     res.json({
-      message: "Complaint log updated successfully",
-      data: updatedLog,
+      message: "Complaint status updated successfully",
+      data: updatedComplaint,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error updating complaint log", error: error.message });
+      .json({ message: "Error updating complaint", error: error.message });
   }
 });
 

@@ -1,48 +1,51 @@
 const express = require("express");
-const router = express.Router();
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
+
 const prisma = new PrismaClient();
+const router = express.Router();
 
-const SECRET_KEY = "THIS_IS_SECRET";
-
-// (async function () {
-//   const passwordPlain = "123";
-//   const hashedPassword = await bcrypt.hash(passwordPlain, 10);
-//   await prisma.users.create({
-//     data: {
-//       Name: "Sajib",
-//       Email: "abc@gmail.com",
-//       Role: "student",
-//       Phone: "123456789",
-//       Password: hashedPassword,
-//     },
-//   });
-//   console.log("created");
-// })();
+const SECRET_KEY = "THIS_IS_SECRET"; // use env variable in production
 
 // POST /api/login
-router.post("/", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ message: "Email and password required" });
-
+router.post("/login", async (req, res) => {
   try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    // Find user (case-insensitive optional)
     const user = await prisma.users.findUnique({ where: { Email: email } });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-    const validPass = await bcrypt.compare(password, user.Password);
-    if (!validPass)
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.Password);
+    if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
-    const payload = { id: user.Id, email: user.Email, role: user.Role };
+    // Create JWT payload
+    const payload = {
+      id: user.Id,
+      email: user.Email,
+      role: user.Role,
+      name: user.Name,
+    };
+
+    // Sign token
     const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "1h" });
 
-    res.json({ token, user: payload });
+    // Return response
+    res.json({
+      message: "Login successful",
+      token: "Bearer " + token, // ✅ easy to use in Authorization header
+      user: payload,
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 

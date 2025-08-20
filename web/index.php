@@ -190,13 +190,20 @@
           const data = await res.json();
 
           if (res.ok) {
-              // Save token or session info if needed
-              localStorage.setItem("token", data.token);
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("role", data.user.role);
 
-              // Redirect to PHP home page URL
-              window.location.href = "./home.php";
+                if (data.user.role === "student" || data.user.role === "Student") {
+                  window.location.href = "./complaint.php";
+                } else if (data.user.role === "admin") {
+                  window.location.href = "admin_dashboard.php";
+                } else if (data.user.role === "superAdmin") {
+                  window.location.href = "superadmin_dashboard.php";
+                }
+
+            }
             // showWelcome(email);
-          } else {
+           else {
             loginError.textContent = data.message || "Login failed";
             loginError.style.display = "block";
           }

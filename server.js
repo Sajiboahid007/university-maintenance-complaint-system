@@ -16,9 +16,12 @@ const roomsRouter = require("./routes/rooms");
 const devicesRouter = require("./routes/devices");
 const complaintsRouter = require("./routes/complaints");
 const complaintLogsRouter = require("./routes/complaintLogs");
+const users = require("./routes/users");
 
 // Mount routes under /api/ prefix
-app.use("/api/login", loginRouter);
+
+app.use("/api/users", users);
+app.use("/api", loginRouter);
 app.use("/api/technicians", techniciansRouter);
 app.use("/api/unit", unitRouter);
 app.use("/api/levels", levelsRouter);

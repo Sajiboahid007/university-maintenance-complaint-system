@@ -51,12 +51,14 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <h5 class="p-3">Menu</h5>
-        <a href="#">Dashboard</a>
-        <a href="#">Submit Complaint</a>
+        <a href="dashboard.php">Dashboard</a>
         <a href="./levels.php">Levels</a>
         <a href="./units.php">Units</a>
-        <a href="#">All Devices</a>
         <a href="./rooms.php">Rooms</a>
-        <a href="#">Technicians</a>
+        <a href="./devices.php">Devices</a>
+        <a href="./technicians.php">Technicians</a>
+        <a href="./users.php">Users</a>
+        <a href="./complaint.php">Complaint</a>
+        <a href="./complaintLogs.php">Complaint Logs</a>
         <a href="#">Settings</a>
       </div>

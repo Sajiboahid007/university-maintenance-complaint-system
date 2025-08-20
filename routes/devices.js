@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET device by ID
-router.get("/:id", async (req, res) => {
+router.get("/get/:id", async (req, res) => {
   try {
     const device = await prisma.devices.findUnique({
       where: { Id: Number(req.params.id) },
@@ -42,17 +42,44 @@ router.post("/insert", async (req, res) => {
   try {
     const { RoomId, Type, Identifier, Status } = req.body;
 
+    // Validate required fields
+    if (!RoomId || !Type || !Status) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        required: ["RoomId", "Type", "Status"],
+      });
+    }
+
     const newDevice = await prisma.devices.create({
-      data: { RoomId, Type, Identifier, Status },
+      data: {
+        Rooms: {
+          connect: {
+            Id: Number(RoomId),
+          },
+        },
+        Type,
+        Identifier: Identifier || null, // Handle optional field
+        Status,
+      },
+      include: {
+        Rooms: true, // Include the related room data in the response
+      },
     });
 
-    res
-      .status(201)
-      .json({ message: "Device created successfully", data: newDevice });
+    res.status(201).json({
+      message: "Device created successfully",
+      data: newDevice,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating device", error: error.message });
+    console.error("Error creating device:", error);
+    res.status(500).json({
+      message: "Error creating device",
+      error: error.message,
+      details: {
+        prismaCode: error.code,
+        meta: error.meta,
+      },
+    });
   }
 });
 
@@ -63,15 +90,35 @@ router.put("/update/:id", async (req, res) => {
     const { RoomId, Type, Identifier, Status } = req.body;
 
     const updatedDevice = await prisma.devices.update({
-      where: { Id: deviceId },
-      data: { RoomId, Type, Identifier, Status },
+      where: {
+        Id: deviceId,
+      },
+      data: {
+        Rooms: {
+          connect: {
+            Id: Number(RoomId),
+          },
+        },
+        Type,
+        Identifier,
+        Status,
+      },
+      include: {
+        Rooms: true, // Include the related room data in the response
+      },
     });
 
-    res.json({ message: "Device updated successfully", data: updatedDevice });
+    res.json({
+      message: "Device updated successfully",
+      data: updatedDevice,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating device", error: error.message });
+    console.error("Error updating device:", error);
+    res.status(500).json({
+      message: "Error updating device",
+      error: error.message,
+      details: error.meta, // Include Prisma error details if available
+    });
   }
 });
 

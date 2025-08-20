@@ -9,40 +9,60 @@ router.get("/", async (req, res) => {
   try {
     const complaints = await prisma.complaints.findMany({
       include: {
-        Devices: true,
         Users: true,
         ComplaintLogs: true,
+        Devices: {
+          include: {
+            Rooms: {
+              include: {
+                Units: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { Id: "desc" },
     });
+
     res.json({ message: "Complaints fetched successfully", data: complaints });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching complaints", error: error.message });
+    res.status(500).json({
+      message: "Error fetching complaints",
+      error: error.message,
+    });
   }
 });
 
 // GET complaint by ID
-router.get("/:id", async (req, res) => {
+router.get("/get/:id", async (req, res) => {
   try {
     const complaint = await prisma.complaints.findUnique({
       where: { Id: Number(req.params.id) },
       include: {
-        Devices: true,
         Users: true,
         ComplaintLogs: true,
+        Devices: {
+          include: {
+            Rooms: {
+              include: {
+                Units: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    if (!complaint)
+    if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
+    }
 
     res.json({ message: "Complaint fetched successfully", data: complaint });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching complaint", error: error.message });
+    res.status(500).json({
+      message: "Error fetching complaint",
+      error: error.message,
+    });
   }
 });
 
@@ -51,22 +71,46 @@ router.post("/insert", async (req, res) => {
   try {
     const { UserId, DeviceId, Description, Status } = req.body;
 
+    // Validate UserId
+    const userExists = await prisma.Users.findUnique({
+      where: { Id: Number(UserId) },
+    });
+    if (!userExists) return res.status(400).json({ message: "User not found" });
+
+    // Validate DeviceId
+    const deviceExists = await prisma.Devices.findUnique({
+      where: { Id: Number(DeviceId) },
+    });
+    if (!deviceExists)
+      return res.status(400).json({ message: "Device not found" });
+
     const newComplaint = await prisma.complaints.create({
       data: {
-        UserId,
-        DeviceId,
+        UserId: Number(UserId),
+        DeviceId: Number(DeviceId),
         Description,
         Status: Status || "pending",
       },
+      include: {
+        Users: true,
+        Devices: {
+          include: {
+            Rooms: { include: { Units: true } },
+          },
+        },
+        ComplaintLogs: true,
+      },
     });
 
-    res
-      .status(201)
-      .json({ message: "Complaint created successfully", data: newComplaint });
+    res.status(201).json({
+      message: "Complaint created successfully",
+      data: newComplaint,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating complaint", error: error.message });
+    res.status(500).json({
+      message: "Error creating complaint",
+      error: error.message,
+    });
   }
 });
 
@@ -78,7 +122,25 @@ router.put("/update/:id", async (req, res) => {
 
     const updatedComplaint = await prisma.complaints.update({
       where: { Id: complaintId },
-      data: { UserId, DeviceId, Description, Status },
+      data: {
+        UserId: Number(UserId),
+        DeviceId: Number(DeviceId),
+        Description,
+        Status,
+      },
+      include: {
+        Users: true,
+        Devices: {
+          include: {
+            Rooms: {
+              include: {
+                Units: true,
+              },
+            },
+          },
+        },
+        ComplaintLogs: true,
+      },
     });
 
     res.json({
@@ -86,9 +148,10 @@ router.put("/update/:id", async (req, res) => {
       data: updatedComplaint,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating complaint", error: error.message });
+    res.status(500).json({
+      message: "Error updating complaint",
+      error: error.message,
+    });
   }
 });
 
